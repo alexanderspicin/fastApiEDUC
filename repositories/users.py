@@ -1,7 +1,9 @@
 import datetime
 from typing import List
+
+from core.security import hash_password
 from db.users import users
-from base import BaseRepository
+from .base import BaseRepository
 from models.user import User, UserIn
 
 
@@ -36,10 +38,25 @@ class UserRepository(BaseRepository):
         return user
 
         self.database.execute()
-        return
+        return user
 
     async def update(self, user: UserIn) -> User:
-        return
+        user = User(
+            name=user.name,
+            email=user.email,
+            hashed_password=hash_password(user.password),
+            is_company=user.is_company,
+            created_at=datetime.datetime.utcnow(),
+            updated_at=datetime.datetime.utcnow()
+
+        )
+
+        values = {**user.dict()}
+        values.pop("created_at", None)
+        values.pop("id", None)
+        query = users.update().where(users.c.id==id).values(**values)
+        await self.database.execute(query)
+        return user
 
     async def get_by_email(self, email: str):
         query = users.select().where(users.c.email == email).first()

@@ -2,9 +2,10 @@ import uvicorn
 from fastapi import FastAPI
 
 from db.base import database
+from endpoints import users
 
-app = FastAPI()
-
+app = FastAPI(title='Employment exchange')
+app.include_router(users.router, prefix='/users', tags=["users"])
 
 @app.on_event("startup")
 async def startup():
